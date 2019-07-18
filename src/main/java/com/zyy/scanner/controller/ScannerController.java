@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
@@ -23,6 +24,11 @@ import io.swagger.annotations.ApiOperation;
 public class ScannerController {
 
     @Resource IScannerControllerService scannerControllerService;
+
+    @RequestMapping("/index")
+    public ModelAndView test(){
+        return new ModelAndView("/webjars/scanner-ui/0.0.1-SNAPSHOT/index.jsp");
+    }
 
     @ApiOperation(value = "获取所有Controller")
     @PostMapping("/getController")
