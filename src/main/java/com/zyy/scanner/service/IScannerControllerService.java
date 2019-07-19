@@ -5,6 +5,7 @@ import java.util.List;
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
+import com.zyy.scanner.model.PageInitVO;
 
 /**
  * @Author zhangyy
@@ -17,7 +18,7 @@ public interface IScannerControllerService {
      * controller扫描
      * @return
      */
-    List<ControllerVO> getController() throws Exception;
+    PageInitVO getController() throws Exception;
 
     /**
      * 获取方法

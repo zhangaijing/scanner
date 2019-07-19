@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
+import com.zyy.scanner.model.PageInitVO;
 import com.zyy.scanner.service.IScannerControllerService;
 import io.swagger.annotations.ApiOperation;
 
@@ -25,7 +26,7 @@ public class ScannerController {
 
     @ApiOperation(value = "获取所有Controller")
     @PostMapping("/getController")
-    public List<ControllerVO> getController() throws Exception{
+    public PageInitVO getController() throws Exception{
         return scannerControllerService.getController();
     }
 

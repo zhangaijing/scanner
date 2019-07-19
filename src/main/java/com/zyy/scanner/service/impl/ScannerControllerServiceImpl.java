@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
+import com.zyy.scanner.model.PageInitVO;
 import com.zyy.scanner.model.ParamVO;
 import com.zyy.scanner.service.IScannerControllerService;
 import com.zyy.scanner.util.RapUtilMap;
@@ -21,14 +22,17 @@ import com.zyy.scanner.util.ResolveClassUtil;
 @Service
 public class ScannerControllerServiceImpl implements IScannerControllerService {
 
-    @Override public List<ControllerVO> getController() throws Exception{
+    @Override public PageInitVO getController() throws Exception{
         List<ControllerVO> controllerList=new ArrayList<>();
         Set<Class<?>> classList = ResolveClassUtil.getPackageController("com.hoolink", true);
         for(Class clazz:classList){
             ControllerVO controller=ResolveClassUtil.getController(clazz);
             controllerList.add(controller);
         }
-        return controllerList;
+        PageInitVO  pageInit=new PageInitVO();
+        pageInit.setServiceName(ResolveClassUtil.getProjectName());
+        pageInit.setControllerList(controllerList);
+        return pageInit;
     }
 
     @Override public List<ControllerMethodVO> getControllerMethod(String classPath) throws Exception{

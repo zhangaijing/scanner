@@ -65,12 +65,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.zyy.webjars</groupId>
-            <artifactId>scanner-ui</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombol.version}</version>
@@ -117,6 +111,13 @@
             <version>1.1.0.B049</version>
         </dependency>
 
+
+
+        <dependency>
+            <groupId>com.zyy.webjars</groupId>
+            <artifactId>scanner-ui</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 
