@@ -3,12 +3,9 @@ package com.zyy.scanner.controller;
 import javax.annotation.Resource;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
