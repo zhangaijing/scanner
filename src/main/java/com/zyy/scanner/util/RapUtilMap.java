@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -416,13 +417,17 @@ public class RapUtilMap {
         } else if (classParam.equals(Float.class) || classParam.equals(float.class)) {
             listParamObj = 22.22F;
         } else if (classParam.equals(Double.class) || classParam.equals(double.class)) {
-            listParamObj = 66.66;
+            listParamObj = 66.66D;
+        }else if(classParam.equals(Short.class)||classParam.equals(short.class)){
+            listParamObj=66;
         } else if (classParam.equals(Date.class)) {
             listParamObj = LocalDateTime.now();
         } else if (classParam.equals(Boolean.class)||classParam.equals(boolean.class)) {
             listParamObj = true;
         } else if (classParam.equals(Byte.class)||classParam.equals(byte.class)) {
             listParamObj = new Byte("1");
+        }else if(classParam.equals(BigDecimal.class)){
+            listParamObj=new BigDecimal(88.88);
         }
         return listParamObj;
     }

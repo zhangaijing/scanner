@@ -112,12 +112,13 @@
         </dependency>
 
 
-
+        <!--
         <dependency>
             <groupId>com.zyy.webjars</groupId>
             <artifactId>scanner-ui</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        -->
 
     </dependencies>
 

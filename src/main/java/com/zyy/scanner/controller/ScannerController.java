@@ -3,12 +3,12 @@ package com.zyy.scanner.controller;
 import javax.annotation.Resource;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zyy.scanner.model.ControllerMethodParamVO;
 import com.zyy.scanner.model.ControllerMethodVO;
-import com.zyy.scanner.model.ControllerVO;
 import com.zyy.scanner.model.PageInitVO;
 import com.zyy.scanner.service.IScannerControllerService;
 import io.swagger.annotations.ApiOperation;
