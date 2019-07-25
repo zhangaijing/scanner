@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.zyy.scanner.constant.CommonConstant;
 import com.zyy.scanner.model.MyJavadocReader;
 import com.zyy.scanner.model.ParamVO;
 
@@ -27,9 +28,6 @@ import com.zyy.scanner.model.ParamVO;
  */
 public class RapUtilMap {
 
-    private static final int NUM = 2;
-
-    private static final String SET = "set";
 
     /**
      * 出入参类型数据填充
@@ -40,11 +38,11 @@ public class RapUtilMap {
     public static String fillReturnAndParamBeanToJson(String classPath) throws Exception{
         Map<String,String> genericMap=resolveGenericClass(classPath);
         String returnJson;
-        if(classPath.equals("void")){
-            return "";
+        if(classPath.equals(CommonConstant.TYPE_VOID)){
+            return CommonConstant.NUL_STR;
         }
         if(genericMap.size()>0){
-            String firstClassPath=genericMap.get("rapUtilFirstClass");
+            String firstClassPath=genericMap.get(CommonConstant.KEY_RAP_UTIL_FIRST_CLASS);
             Class firstClass=getClassByPath(firstClassPath);
             returnJson=fillData(firstClass,genericMap);
         }else{
@@ -54,17 +52,17 @@ public class RapUtilMap {
     }
 
     /**
-     * 方法的入参数据填充----专用
+     * 方法的多个入参数据填充----专用
      * @param paramList
      * @return
      * @throws Exception
      */
     public static String muliParamFillBeanToJson(List<ParamVO> paramList) throws Exception{
-        String paramJson="";
+        String paramJson=CommonConstant.NUL_STR;
         if(CollectionUtils.isNotEmpty(paramList)){
             if(paramList.size()==1){
                 String paramClassPath=paramList.get(0).getParamType();
-                if(paramClassPath.indexOf("<")>-1){
+                if(paramClassPath.indexOf(CommonConstant.LEFT_ANGLE_BRACKET)>-1){
                     paramJson=RapUtilMap.fillReturnAndParamBeanToJson(paramClassPath);
                 }else{
                     Object paramTypeVal=oftenTypeFillData(paramClassPath);
@@ -103,8 +101,25 @@ public class RapUtilMap {
      * @throws Exception
      */
     public static String fillData(Class beanClass,Map<String,String> genericMap) throws Exception {
-        Object fillObj=fillBeanData(beanClass,genericMap);
-        String jsonStr= JSONUtils.toJSONString(fillObj);
+        String jsonStr;
+        if(beanClass.equals(List.class)){
+            List<Object> listObj=new ArrayList<>();
+            String classTypeName=beanClass.getTypeName();
+            String listItemType=genericMap.get(classTypeName);
+            if(listItemType!=null){
+                Class listItemClass=getClassByPath(listItemType);
+                for(int i=0;i<CommonConstant.ARR_FILL_MAX_NUM;i++){
+                    Object fillObj=fillBeanData(listItemClass,genericMap);
+                    listObj.add(fillObj);
+                }
+                jsonStr=JSONUtils.toJSONString(listObj);
+            }else{
+                jsonStr=CommonConstant.NUL_STR;
+            }
+        }else{
+            Object fillObj=fillBeanData(beanClass,genericMap);
+            jsonStr= JSONUtils.toJSONString(fillObj);
+        }
         return jsonStr;
     }
 
@@ -132,21 +147,24 @@ public class RapUtilMap {
         Class tempClass = childClass;
         String classTypeName=tempClass.getTypeName();
         Boolean flag=true;
-        if(classTypeName.equals("java.lang.Object")){
+        if(classTypeName.equals(CommonConstant.TYPE_OBJECT)){
             flag=false;
         }
         while (tempClass != null && flag) {
             List<Method> parentMethod=Arrays.asList(tempClass.getDeclaredMethods());
             methodList.addAll(parentMethod);
             tempClass = tempClass.getSuperclass();
-            classTypeName=tempClass.getTypeName();
-            if(classTypeName.equals("java.lang.Object")){
-                flag=false;
+            //类的继承
+            if(tempClass!=null){
+                classTypeName=tempClass.getTypeName();
+                if(classTypeName.equals(CommonConstant.TYPE_OBJECT)){
+                    flag=false;
+                }
             }
         }
         if(CollectionUtils.isNotEmpty(methodList)){
             //过滤掉get的方法
-            methodList=methodList.stream().filter(t->t.getName().startsWith("set")).collect(Collectors.toList());
+            methodList=methodList.stream().filter(t->t.getName().startsWith(CommonConstant.SET_STR)).collect(Collectors.toList());
         }
         return methodList;
     }
@@ -189,7 +207,7 @@ public class RapUtilMap {
         Map<String,String> fieldCommentMap=MyJavadocReader.getClassFieldComment(beanClass.getName());
         for (Method method : allMethodList) {
             String methodName = method.getName();
-            if (methodName.startsWith("set")) {
+            if (methodName.startsWith(CommonConstant.SET_STR)) {
                 Class fieldClass = method.getParameterTypes()[0];
                 setFieldVal(beanClass, fieldClass, method, beanObj,genericMap,fieldCommentMap);
             }
@@ -210,7 +228,7 @@ public class RapUtilMap {
         String fieldName=methodNameToFieldName(method.getName());
         String fieldKey=getFieldKeyByMethod(method,fieldCommentMap);
         if(fillData!=null){
-            //method.invoke(beanObj,fillData);
+            //method.invoke(beanObj,fillData)
             beanObj.put(fieldKey,fillData);
         }else if (fieldClass.equals(List.class)) {
             Class tempClass = beanClass;
@@ -220,13 +238,14 @@ public class RapUtilMap {
             }
             Type type = field.getGenericType();
             listOperation(beanClass,beanObj,method,type,genericMap,fieldCommentMap);
-        }else if(fieldClass.getTypeName().equals("int[]")){
-            int[] tempInt={1,2};
-            method.invoke(beanObj,tempInt);
+        }else if(fieldClass.getTypeName().equals(CommonConstant.TYPE_INT_ARR)){
+            int[] tempInt={CommonConstant.INT_ONE,CommonConstant.INT_TWO};
+            //method.invoke(beanObj,tempInt)
+            beanObj.put(fieldKey,tempInt);
         }else {//自定义类
             Field tempField=beanClass.getDeclaredField(fieldName);
             String selfClassTypeName=tempField.getGenericType().getTypeName();
-            if(selfClassTypeName.equals("T")){
+            if(selfClassTypeName.equals(CommonConstant.TYPE_T)){
                 //泛型的处理方式
                 String classType=beanClass.getTypeName();
                 String genericClass=genericMap.get(classType);
@@ -250,7 +269,7 @@ public class RapUtilMap {
                 Map<String,String> selfGenericMap=resolveGenericClass(selfClassTypeName);
                 for (Method childClassMethod : childClassMethods) {
                     String childClassMethodName = childClassMethod.getName();
-                    if (childClassMethodName.startsWith("set")) {
+                    if (childClassMethodName.startsWith(CommonConstant.SET_STR)) {
                         Class childClassFieldClass = childClassMethod.getParameterTypes()[0];
                         setFieldVal(fieldClass, childClassFieldClass, childClassMethod, childBeanMap,selfGenericMap,selfClassCommentMap);
                         beanObj.put(fieldKey,childBeanMap);
@@ -269,32 +288,31 @@ public class RapUtilMap {
     public static Map<String,String> resolveGenericClass(String classType) throws Exception{
         Map<String,String> genericMap=new HashMap<>();
         int leftIndex=0;
-        int rightIndex=0;
-        String returnJson="";
-        rightIndex=classType.indexOf("<");
+        int rightIndex;
+        rightIndex=classType.indexOf(CommonConstant.LEFT_ANGLE_BRACKET);
         if(rightIndex>0){
             List<String> typeList=new ArrayList<>();
             while(rightIndex>0){
                 String typeStr=classType.substring(leftIndex,rightIndex);
                 leftIndex=rightIndex+1;
-                rightIndex=classType.indexOf("<",leftIndex);
+                rightIndex=classType.indexOf(CommonConstant.LEFT_ANGLE_BRACKET,leftIndex);
                 typeList.add(typeStr);
                 if(rightIndex==-1){
-                    int lastRightIndex=classType.indexOf(">");
+                    int lastRightIndex=classType.indexOf(CommonConstant.RIGHT_ANGLE_BRACKET);
                     String lastType=classType.substring(leftIndex,lastRightIndex);
                     typeList.add(lastType);
                 }
             }
-            Integer j=0;
-            for(int i=0;i<typeList.size();i++){
-                String genericType="";
+            Integer j;
+            for(int i=CommonConstant.INT_ZERO;i<typeList.size();i++){
+                String genericType=CommonConstant.NUL_STR;
                 j=i+1;
                 if(j< typeList.size()){
                     genericType=typeList.get(j);
                 }
                 genericMap.put(typeList.get(i),genericType);
             }
-            genericMap.put("rapUtilFirstClass",typeList.get(0));
+            genericMap.put(CommonConstant.KEY_RAP_UTIL_FIRST_CLASS,typeList.get(0));
         }
         return genericMap;
     }
@@ -323,19 +341,19 @@ public class RapUtilMap {
         List<Object> objList = new ArrayList<>();
         if (type != null) {
             Class listObjClass;
-            if(type.getTypeName().equals("T")){
+            if(type.getTypeName().equals(CommonConstant.TYPE_T)){
                 String genericTypePath=genericMap.get(beanClass.getTypeName());
                 listObjClass=getClassByPath(genericTypePath);
             }else{
                 ParameterizedType pt = (ParameterizedType) type;
-                if(pt.getActualTypeArguments()[0] instanceof TypeVariable){
+                if(pt.getActualTypeArguments()[CommonConstant.INT_ZERO] instanceof TypeVariable){
                     String genericTypePath=genericMap.get(beanClass.getTypeName());
                     listObjClass=getClassByPath(genericTypePath);
                 }else{
                     listObjClass = (Class) pt.getActualTypeArguments()[0];
                 }
             }
-            for (int i = 0; i < NUM; i++) {
+            for (int i = CommonConstant.INT_ZERO; i < CommonConstant.ARR_FILL_MAX_NUM; i++) {
                 Object listObj = fillListData(listObjClass);
                 objList.add(listObj);
             }
@@ -359,7 +377,7 @@ public class RapUtilMap {
             while (tempClass != null && flag) {
                 tempClass = tempClass.getSuperclass();
                 classTypeName=tempClass.getTypeName();
-                if(classTypeName.equals("java.lang.Object")){
+                if(classTypeName.equals(CommonConstant.TYPE_OBJECT)){
                     flag=false;
                 }
                 field=getFieldByFieldName(tempClass,fieldName);
@@ -409,25 +427,25 @@ public class RapUtilMap {
     private static Object oftenTypeFillData(Class classParam){
         Object listParamObj=null;
         if (classParam.equals(String.class)) {
-            listParamObj="string";
+            listParamObj=CommonConstant.FILL_STRING;
         } else if (classParam.equals(Integer.class) || classParam.equals(int.class)) {
-            listParamObj = 10;
+            listParamObj = CommonConstant.FILL_INT;
         } else if (classParam.equals(Long.class) || classParam.equals(long.class)) {
-            listParamObj = 99L;
+            listParamObj = CommonConstant.FILL_LONG;
         } else if (classParam.equals(Float.class) || classParam.equals(float.class)) {
-            listParamObj = 22.22F;
+            listParamObj = CommonConstant.FILL_FLOAT;
         } else if (classParam.equals(Double.class) || classParam.equals(double.class)) {
-            listParamObj = 66.66D;
+            listParamObj = CommonConstant.FILL_DOUBLE;
         }else if(classParam.equals(Short.class)||classParam.equals(short.class)){
-            listParamObj=66;
+            listParamObj=CommonConstant.FILL_SHORT;
         } else if (classParam.equals(Date.class)) {
             listParamObj = LocalDateTime.now();
         } else if (classParam.equals(Boolean.class)||classParam.equals(boolean.class)) {
-            listParamObj = true;
+            listParamObj = Boolean.TRUE;
         } else if (classParam.equals(Byte.class)||classParam.equals(byte.class)) {
-            listParamObj = new Byte("1");
+            listParamObj = CommonConstant.FILL_BYTE;
         }else if(classParam.equals(BigDecimal.class)){
-            listParamObj=new BigDecimal(88.88);
+            listParamObj=CommonConstant.FILL_BIGDECIMAL;
         }
         return listParamObj;
     }
@@ -454,7 +472,7 @@ public class RapUtilMap {
         if(fieldComment==null){
             fieldComment="";
         }
-        String fieldKey= fieldName+"###"+fieldComment;
+        String fieldKey= fieldName+CommonConstant.KEY_COMMENT_SPLIT +fieldComment;
         return fieldKey;
     }
 
@@ -466,8 +484,8 @@ public class RapUtilMap {
      */
     private static String methodNameToFieldName(String methodName) {
         String fieldName = methodName;
-        if (methodName.startsWith(SET)) {
-            fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+        if (methodName.startsWith(CommonConstant.SET_STR)&&fieldName.length()>CommonConstant.INT_FOUR) {
+            fieldName = methodName.substring(CommonConstant.INT_THREE, CommonConstant.INT_FOUR).toLowerCase() + methodName.substring(CommonConstant.INT_FOUR);
         }
         return fieldName;
     }
