@@ -11,6 +11,8 @@ import java.util.Date;
  */
 public class CommonConstant {
 
+    public final static String SCANNER_BASE_PAGE="com.hoolink";
+
     public final static Integer INT_ZERO=0;
     public final static Integer INT_FOUR=4;
     public final static Integer INT_THREE=3;
@@ -41,5 +43,14 @@ public class CommonConstant {
     public final static String RIGHT_ANGLE_BRACKET=">";
     public final static String NUL_STR="";
     public static final String SET_STR = "set";
+
+    /*** 包扫描 */
+    public final static String AUTHOR="@author";
+    public final static String DESC_FULL="@description";
+    public final static String DESC_SHORT="@desc";
+    public final static String KEY_CLASS_COMMENT="classComment";
+    public final static String ENTER_CHAR="\n";
+    public final static String CONTROLLER_CHAR="controller";
+
 
 }

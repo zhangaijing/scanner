@@ -26,8 +26,8 @@ public class ScannerController {
 
     @ApiOperation(value = "获取所有Controller")
     @PostMapping("/getController")
-    public PageInitVO getController() throws Exception{
-        return scannerControllerService.getController();
+    public PageInitVO getController(String search) throws Exception{
+        return scannerControllerService.getController(search);
     }
 
     @ApiOperation(value="获取Controller下的所有方法")

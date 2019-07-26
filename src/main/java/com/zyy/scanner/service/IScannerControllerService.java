@@ -16,9 +16,11 @@ public interface IScannerControllerService {
 
     /**
      * controller扫描
+     * @param search
      * @return
+     * @throws Exception
      */
-    PageInitVO getController() throws Exception;
+    PageInitVO getController(String search) throws Exception;
 
     /**
      * 获取方法

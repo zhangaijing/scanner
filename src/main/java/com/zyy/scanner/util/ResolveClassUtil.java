@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zyy.scanner.constant.CommonConstant;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
 import com.zyy.scanner.model.ExecutorBean;
@@ -31,9 +32,6 @@ import io.swagger.annotations.ApiOperation;
 
 public class ResolveClassUtil {
 
-    private final static String AUTHOR="@author";
-    private final static String DESC_FULL="@description";
-    private final static String DESC_SHORT="@desc";
     private static String projectName="";
     private static Map<String,ControllerMethodVO> controllerMethodMap=new HashMap<>();
 
@@ -56,24 +54,24 @@ public class ResolveClassUtil {
         String controllerUrl=controllerUrlArr[0];
         String classPath=clazz.getTypeName();
         Map<String,String> commentMap=MyJavadocReader.getClassFieldComment(classPath);
-        String classComment=commentMap.get("classComment");
+        String classComment=commentMap.get(CommonConstant.KEY_CLASS_COMMENT);
         String lowerComment=classComment.toLowerCase();
-        Integer authIndex=lowerComment.indexOf(AUTHOR);
-        Integer descIndex=lowerComment.indexOf(DESC_FULL);
+        Integer authIndex=lowerComment.indexOf(CommonConstant.AUTHOR);
+        Integer descIndex=lowerComment.indexOf(CommonConstant.DESC_FULL);
         String authorComment="";
         String descComment="";
-        Integer authLen=DESC_FULL.length();
+        Integer authLen=CommonConstant.DESC_FULL.length();
         Integer enterIndex;
         if(authIndex>-1){
-            enterIndex=lowerComment.indexOf("\n",authIndex);
-            authorComment=classComment.substring(authIndex+AUTHOR.length(),enterIndex).trim();
+            enterIndex=lowerComment.indexOf(CommonConstant.ENTER_CHAR,authIndex);
+            authorComment=classComment.substring(authIndex+CommonConstant.AUTHOR.length(),enterIndex).trim();
         }
         if(descIndex==-1){
-            descIndex=lowerComment.indexOf(DESC_SHORT);
-            authLen=DESC_SHORT.length();
+            descIndex=lowerComment.indexOf(CommonConstant.DESC_SHORT);
+            authLen=CommonConstant.DESC_SHORT.length();
         }
         if(descIndex>-1){
-            enterIndex=lowerComment.indexOf("\n",descIndex);
+            enterIndex=lowerComment.indexOf(CommonConstant.ENTER_CHAR,descIndex);
             descComment=classComment.substring(descIndex+authLen,enterIndex).trim();
         }
         ControllerVO controller=new ControllerVO();
@@ -93,7 +91,7 @@ public class ResolveClassUtil {
         List<ControllerMethodVO> controllerMethodList=new ArrayList<>();
         Method[] methods = classes.getDeclaredMethods();
         RequestMapping requestMappingClass = (RequestMapping) classes.getAnnotation(RequestMapping.class);
-        String controllerUrl = "";
+        String controllerUrl;
         try {
             String[] requestMappingClassValue = requestMappingClass.value();
             controllerUrl = requestMappingClassValue[0];
@@ -147,7 +145,7 @@ public class ResolveClassUtil {
         Method[] methods = classes.getDeclaredMethods();
         //RequestMapping requestMappingClass = (RequestMapping) classes.getAnnotation(RequestMapping.class)z
         RequestMapping requestMappingClass = (RequestMapping) classes.getAnnotation(RequestMapping.class);
-        String classMappValue = "";
+        String classMappValue;
         try {
             String[] requestMappingClassValue = requestMappingClass.value();
             classMappValue = requestMappingClassValue[0];
@@ -332,7 +330,7 @@ public class ResolveClassUtil {
      * @return
      */
     private static Set<String> getPackageByFile(String packagePath, Set<String> packageNameList) {
-        if(packagePath.indexOf("controller")>0){
+        if(packagePath.indexOf(CommonConstant.CONTROLLER_CHAR)>0){
             File file = new File(packagePath);
             File[] childFiles = file.listFiles();
             for (
