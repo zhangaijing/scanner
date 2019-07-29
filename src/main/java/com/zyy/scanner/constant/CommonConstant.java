@@ -30,7 +30,7 @@ public class CommonConstant {
     public final static Double FILL_DOUBLE=66.66D;
     public final static Short FILL_SHORT=66;
     public final static Byte FILL_BYTE=new Byte("1");
-    public final static BigDecimal FILL_BIGDECIMAL=new BigDecimal(88.88);
+    public final static BigDecimal FILL_BIGDECIMAL=new BigDecimal(88.88).setScale(2,BigDecimal.ROUND_DOWN);
 
     /*** 常用类型 */
     public final static String TYPE_OBJECT="java.lang.Object";
@@ -52,5 +52,5 @@ public class CommonConstant {
     public final static String ENTER_CHAR="\n";
     public final static String CONTROLLER_CHAR="controller";
 
-
+    public final static String FIELD_NOT_NULL="[*]";
 }

@@ -54,7 +54,9 @@ public class ScannerControllerServiceImpl implements IScannerControllerService {
 
     @Override public List<ControllerMethodVO> getControllerMethod(String classPath) throws Exception{
         Class clazz=RapUtilMap.getClassByPath(classPath);
-        return ResolveClassUtil.getControllerMethod(clazz);
+        List<ControllerMethodVO> controllerMethodList=ResolveClassUtil.getControllerMethod(clazz);
+        controllerMethodList=controllerMethodList.stream().sorted(Comparator.comparing(ControllerMethodVO::getUrl)).collect(Collectors.toList());
+        return controllerMethodList;
     }
 
     @Override public ControllerMethodParamVO getMethodParam(String methodUrl) throws Exception{

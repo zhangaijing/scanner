@@ -52,6 +52,25 @@ public class CommentReaderUtil {
     }
 
     /**
+     * 动态获取类的属性注释--批量
+     * @param classPathList
+     * @return
+     */
+    public static Map<String,String> getClassFieldCommentByList(List<String> classPathList) throws Exception{
+        List<String> pathList=new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(classPathList)){
+            String projectAbsPath=getProjectAbsPath(classPathList.get(0));
+            String targetWorkspace=projectAbsPath+"\\target";
+            for(String classPath:classPathList){
+                pathList.add(getClassAbsPath(classPath));
+            }
+            return getClassFieldComment(pathList,targetWorkspace);
+        }else{
+            return new HashMap<>();
+        }
+    }
+
+    /**
      * 获取项目名称
      * @return
      * @throws Exception
@@ -67,6 +86,37 @@ public class CommentReaderUtil {
             }
         }
         return projectName;
+    }
+
+    /**
+     * 获取类的绝对路径
+     * @param classPath
+     * @return
+     */
+    private static String getClassAbsPath(String classPath)throws Exception{
+        String projectAbsPath=getProjectAbsPath(classPath);
+        String classAbsPath=getClassAbsPathByClassPath(projectAbsPath,classPath);
+        if(classAbsPath.lastIndexOf(".java")==-1){
+            classAbsPath+=".java";
+        }
+        return classAbsPath;
+    }
+
+    /**
+     * 获取项目的绝对路径
+     * @param classPath
+     * @return
+     * @throws Exception
+     */
+    private static String getProjectAbsPath(String classPath) throws Exception{
+        Integer sdkIndex=classPath.indexOf(".sdk.");
+        String projectAbsPath=getProjectPath();
+        if(sdkIndex>0){
+            Integer slantLastIndex=projectAbsPath.lastIndexOf("-");
+            String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
+            projectAbsPath=tempProjectPath+"sdk";
+        }
+        return projectAbsPath;
     }
 
     /***

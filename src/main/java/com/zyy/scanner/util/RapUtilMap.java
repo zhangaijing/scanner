@@ -1,12 +1,15 @@
 package com.zyy.scanner.util;
 
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -16,8 +19,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.zyy.scanner.constant.CommonConstant;
+import com.zyy.scanner.model.ClassAndParentClassBO;
 import com.zyy.scanner.model.ParamVO;
 
 /**
@@ -141,7 +146,9 @@ public class RapUtilMap {
      * @return
      * @throws Exception
      */
-    private static List<Method> getParentField(Class childClass) throws Exception {
+    private static ClassAndParentClassBO getParentField(Class childClass) throws Exception {
+        ClassAndParentClassBO classAndParentClass=new ClassAndParentClassBO();
+        List<String> classAndParentClassPath=new ArrayList<>();
         List<Method> methodList = new ArrayList<>();
         Class tempClass = childClass;
         String classTypeName=tempClass.getTypeName();
@@ -152,6 +159,9 @@ public class RapUtilMap {
         while (tempClass != null && flag) {
             List<Method> parentMethod=Arrays.asList(tempClass.getDeclaredMethods());
             methodList.addAll(parentMethod);
+            if(!tempClass.getName().equals(CommonConstant.TYPE_OBJECT)){
+                classAndParentClassPath.add(tempClass.getName());
+            }
             tempClass = tempClass.getSuperclass();
             //类的继承
             if(tempClass!=null){
@@ -165,7 +175,9 @@ public class RapUtilMap {
             //过滤掉get的方法
             methodList=methodList.stream().filter(t->t.getName().startsWith(CommonConstant.SET_STR)).collect(Collectors.toList());
         }
-        return methodList;
+        classAndParentClass.setClassPathList(classAndParentClassPath);
+        classAndParentClass.setMethodList(methodList);
+        return classAndParentClass;
     }
 
     /**
@@ -202,8 +214,10 @@ public class RapUtilMap {
      */
     private static void fillBeanDataComm(Class beanClass, Map<String,Object> beanObj,Map<String,String> genericMap) throws Exception {
         //Method[] methods=beanClass.getDeclaredMethods()
-        List<Method> allMethodList = getParentField(beanClass);
-        Map<String,String> fieldCommentMap=CommentReaderUtil.getClassFieldComment(beanClass.getName());
+        ClassAndParentClassBO classAndParentClass = getParentField(beanClass);
+        List<Method> allMethodList=classAndParentClass.getMethodList();
+        List<String> allClassPath=classAndParentClass.getClassPathList();
+        Map<String,String> fieldCommentMap=CommentReaderUtil.getClassFieldCommentByList(allClassPath);
         for (Method method : allMethodList) {
             String methodName = method.getName();
             if (methodName.startsWith(CommonConstant.SET_STR)) {
@@ -225,7 +239,8 @@ public class RapUtilMap {
     private static void setFieldVal(Class beanClass, Class fieldClass, Method method, Map<String,Object> beanObj,Map<String,String> genericMap,Map<String,String> fieldCommentMap) throws Exception {
         Object fillData=oftenTypeFillData(fieldClass);
         String fieldName=methodNameToFieldName(method.getName());
-        String fieldKey=getFieldKeyByMethod(method,fieldCommentMap);
+        Field beanField=getSuperFieldByFieldName(beanClass,fieldName);
+        String fieldKey=getFieldKeyByMethod(method,beanField,fieldCommentMap);
         if(fillData!=null){
             //method.invoke(beanObj,fillData)
             beanObj.put(fieldKey,fillData);
@@ -245,20 +260,24 @@ public class RapUtilMap {
             Field tempField=beanClass.getDeclaredField(fieldName);
             String selfClassTypeName=tempField.getGenericType().getTypeName();
             if(selfClassTypeName.equals(CommonConstant.TYPE_T)){
-                //泛型的处理方式
-                String classType=beanClass.getTypeName();
-                String genericClass=genericMap.get(classType);
-                if(genericClass!=null){
-                    Class genericClazz= getClassByPath(genericClass);
-                    if(genericClazz.equals(List.class)){
-                        Class tempClass = beanClass;
-                        Field field=getSuperFieldByFieldName(tempClass,fieldName);
-                        listOperation(genericClazz,beanObj,method,field.getGenericType(),genericMap,fieldCommentMap);
-                    }else{
-                        Map<String,Object> genericObjMap=new HashMap<>();
-                        fillBeanDataComm(genericClazz,genericObjMap,genericMap);
-                        beanObj.put(fieldKey,genericObjMap);
+                if(genericMap!=null){
+                    //泛型的处理方式
+                    String classType=beanClass.getTypeName();
+                    String genericClass=genericMap.get(classType);
+                    if(genericClass!=null){
+                        Class genericClazz= getClassByPath(genericClass);
+                        if(genericClazz.equals(List.class)){
+                            Class tempClass = beanClass;
+                            Field field=getSuperFieldByFieldName(tempClass,fieldName);
+                            listOperation(genericClazz,beanObj,method,field.getGenericType(),genericMap,fieldCommentMap);
+                        }else{
+                            Map<String,Object> genericObjMap=new HashMap<>();
+                            fillBeanDataComm(genericClazz,genericObjMap,genericMap);
+                            beanObj.put(fieldKey,genericObjMap);
+                        }
                     }
+                }else{
+                    beanObj.put(fieldKey,new HashMap<>());
                 }
             }else{
                 //自定义类处理方式
@@ -356,7 +375,14 @@ public class RapUtilMap {
                 Object listObj = fillListData(listObjClass);
                 objList.add(listObj);
             }
-            String fieldKey=getFieldKeyByMethod(method,fieldCommentMap);
+            String fieldName=methodNameToFieldName(method.getName());
+            String fieldKey;
+            if(beanClass.equals(List.class)){
+                fieldKey=fieldName+CommonConstant.KEY_COMMENT_SPLIT+fieldCommentMap.get(fieldName);
+            }else{
+                Field beanField=getSuperFieldByFieldName(beanClass,fieldName);
+                fieldKey=getFieldKeyByMethod(method,beanField,fieldCommentMap);
+            }
             //method.invoke(beanObj, objList)
             beanObj.put(fieldKey,objList);
         }
@@ -439,6 +465,10 @@ public class RapUtilMap {
             listParamObj=CommonConstant.FILL_SHORT;
         } else if (classParam.equals(Date.class)) {
             listParamObj = LocalDateTime.now();
+        }else if(classParam.equals(LocalDate.class)){
+            listParamObj=LocalDate.now();
+        }else if(classParam.equals(LocalTime.class)){
+            listParamObj=LocalTime.now();
         } else if (classParam.equals(Boolean.class)||classParam.equals(boolean.class)) {
             listParamObj = Boolean.TRUE;
         } else if (classParam.equals(Byte.class)||classParam.equals(byte.class)) {
@@ -465,11 +495,27 @@ public class RapUtilMap {
      * @param fieldCommentMap
      * @return
      */
-    private static String getFieldKeyByMethod(Method method,Map<String,String> fieldCommentMap){
+    private static String getFieldKeyByMethod(Method method,Field beanField,Map<String,String> fieldCommentMap){
         String fieldName=methodNameToFieldName(method.getName());
         String fieldComment=fieldCommentMap.get(fieldName);
         if(fieldComment==null){
             fieldComment="";
+        }
+        if(beanField==null){
+            return fieldName+CommonConstant.KEY_COMMENT_SPLIT+fieldComment;
+        }
+        NotNull fieldType=beanField.getAnnotation(NotNull.class);
+        if(fieldType!=null){
+            String notnullMessage=fieldType.message();
+            if(StringUtils.isNotBlank(notnullMessage)){
+                Integer notnullIndex=notnullMessage.indexOf("不能为空");
+                if(notnullIndex>-1){
+                    fieldComment=notnullMessage.substring(0,notnullIndex);
+                }else{
+                    fieldComment=notnullMessage;
+                }
+            }
+            fieldComment=CommonConstant.FIELD_NOT_NULL+fieldComment;
         }
         String fieldKey= fieldName+CommonConstant.KEY_COMMENT_SPLIT +fieldComment;
         return fieldKey;
@@ -483,7 +529,7 @@ public class RapUtilMap {
      */
     private static String methodNameToFieldName(String methodName) {
         String fieldName = methodName;
-        if (methodName.startsWith(CommonConstant.SET_STR)&&fieldName.length()>CommonConstant.INT_FOUR) {
+        if (methodName.startsWith(CommonConstant.SET_STR)&&fieldName.length()>CommonConstant.INT_THREE) {
             fieldName = methodName.substring(CommonConstant.INT_THREE, CommonConstant.INT_FOUR).toLowerCase() + methodName.substring(CommonConstant.INT_FOUR);
         }
         return fieldName;
