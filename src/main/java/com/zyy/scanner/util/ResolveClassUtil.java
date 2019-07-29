@@ -26,10 +26,14 @@ import com.zyy.scanner.constant.CommonConstant;
 import com.zyy.scanner.model.ControllerMethodVO;
 import com.zyy.scanner.model.ControllerVO;
 import com.zyy.scanner.model.ExecutorBean;
-import com.zyy.scanner.model.MyJavadocReader;
 import com.zyy.scanner.model.ParamVO;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * @Author zhangyy
+ * @DateTime 2019-01-26 17:38
+ * @Description 包Controller扫描工具类
+ */
 public class ResolveClassUtil {
 
     private static String projectName="";
@@ -37,7 +41,7 @@ public class ResolveClassUtil {
 
     static{
         try{
-            projectName=MyJavadocReader.getProjectName();
+            projectName=CommentReaderUtil.getProjectName();
         }catch (Exception e){
 
         }
@@ -53,7 +57,7 @@ public class ResolveClassUtil {
         String[] controllerUrlArr=requestMapping.value();
         String controllerUrl=controllerUrlArr[0];
         String classPath=clazz.getTypeName();
-        Map<String,String> commentMap=MyJavadocReader.getClassFieldComment(classPath);
+        Map<String,String> commentMap=CommentReaderUtil.getClassFieldComment(classPath);
         String classComment=commentMap.get(CommonConstant.KEY_CLASS_COMMENT);
         String lowerComment=classComment.toLowerCase();
         Integer authIndex=lowerComment.indexOf(CommonConstant.AUTHOR);

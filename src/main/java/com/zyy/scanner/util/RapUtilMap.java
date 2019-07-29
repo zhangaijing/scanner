@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.zyy.scanner.constant.CommonConstant;
-import com.zyy.scanner.model.MyJavadocReader;
 import com.zyy.scanner.model.ParamVO;
 
 /**
@@ -204,7 +203,7 @@ public class RapUtilMap {
     private static void fillBeanDataComm(Class beanClass, Map<String,Object> beanObj,Map<String,String> genericMap) throws Exception {
         //Method[] methods=beanClass.getDeclaredMethods()
         List<Method> allMethodList = getParentField(beanClass);
-        Map<String,String> fieldCommentMap=MyJavadocReader.getClassFieldComment(beanClass.getName());
+        Map<String,String> fieldCommentMap=CommentReaderUtil.getClassFieldComment(beanClass.getName());
         for (Method method : allMethodList) {
             String methodName = method.getName();
             if (methodName.startsWith(CommonConstant.SET_STR)) {
@@ -265,7 +264,7 @@ public class RapUtilMap {
                 //自定义类处理方式
                 Map<String,Object> childBeanMap=new HashMap<>();
                 Method[] childClassMethods = fieldClass.getDeclaredMethods();
-                Map<String,String> selfClassCommentMap=MyJavadocReader.getClassFieldComment(fieldClass.getName());
+                Map<String,String> selfClassCommentMap=CommentReaderUtil.getClassFieldComment(fieldClass.getName());
                 Map<String,String> selfGenericMap=resolveGenericClass(selfClassTypeName);
                 for (Method childClassMethod : childClassMethods) {
                     String childClassMethodName = childClassMethod.getName();

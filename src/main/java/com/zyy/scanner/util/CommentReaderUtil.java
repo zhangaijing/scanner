@@ -1,4 +1,4 @@
-package com.zyy.scanner.model;
+package com.zyy.scanner.util;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,12 +13,17 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.RootDoc;
 
-public class MyJavadocReader {
+/**
+ * @Author zhangyy
+ * @DateTime 2019-01-26 17:38
+ * @Description 注释解析工具类
+ */
+public class CommentReaderUtil {
     private static RootDoc root;
     public static class Doclet{
         public Doclet(){}
         public static boolean start(RootDoc root){
-            MyJavadocReader.root=root;
+            CommentReaderUtil.root=root;
             return true;
         }
     }
@@ -44,6 +49,24 @@ public class MyJavadocReader {
         List<String> pathList=new ArrayList<>();
         pathList.add(classAbsPath);
         return getClassFieldComment(pathList,targetWorkspace);
+    }
+
+    /**
+     * 获取项目名称
+     * @return
+     * @throws Exception
+     */
+    public static String getProjectName() throws Exception{
+        String projectPath=getProjectPath();
+        Integer slantLastIndex=projectPath.lastIndexOf("\\");
+        String projectName="";
+        if(slantLastIndex>0){
+            projectName=projectPath.substring(slantLastIndex);
+            if(projectName.startsWith("\\")){
+                projectName=projectName.substring(1);
+            }
+        }
+        return projectName;
     }
 
     /***
@@ -72,24 +95,7 @@ public class MyJavadocReader {
         return root;
     }
 
-    public MyJavadocReader(){}
-
-    /**
-     * 获取字段注释信息
-     */
-    private static Map<String,String> getClassFieldComment(){
-        com.sun.tools.javadoc.Main.execute(
-                new String[]{
-                        "-doclet",Doclet.class.getName(),
-                        "-encoding","utf-8",
-                        "-classpath","E:\\HOOLINKGit\\workspace\\hoolink-dmx\\target",
-                        "E:\\HOOLINKGit\\workspace\\hoolink-dmx\\src\\main\\java\\com\\hoolink\\dmx\\model\\ReqParamBO.java",
-                        "E:\\HOOLINKGit\\workspace\\hoolink-dmx\\src\\main\\java\\com\\hoolink\\dmx\\model\\TargetsBO.java"
-                });
-        //show();
-        Map<String,String> fieldMap=getFieldComment();
-        return fieldMap;
-    }
+    public CommentReaderUtil(){}
 
     /**
      * 动态获取类的属性注释
@@ -155,19 +161,6 @@ public class MyJavadocReader {
         File directory = new File("");
         String projectPath = directory.getCanonicalPath();
         return projectPath;
-    }
-
-    public static String getProjectName() throws Exception{
-        String projectPath=getProjectPath();
-        Integer slantLastIndex=projectPath.lastIndexOf("\\");
-        String projectName="";
-        if(slantLastIndex>0){
-            projectName=projectPath.substring(slantLastIndex);
-            if(projectName.startsWith("\\")){
-                projectName=projectName.substring(1);
-            }
-        }
-        return projectName;
     }
 
 }
