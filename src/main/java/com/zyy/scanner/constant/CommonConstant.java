@@ -53,4 +53,6 @@ public class CommonConstant {
     public final static String CONTROLLER_CHAR="controller";
 
     public final static String FIELD_NOT_NULL="[*]";
+    public final static String NOT_NULL_SPLIT_LONG_CHR="不能为空";
+    public final static String NOT_NULL_SPLIT_SHORT_CHR="不为空";
 }

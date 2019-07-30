@@ -56,7 +56,7 @@ public class RapUtilMap {
     }
 
     /**
-     * 方法的多个入参数据填充----专用
+     * 方法的多个入参数据填充----入参专用
      * @param paramList
      * @return
      * @throws Exception
@@ -187,8 +187,7 @@ public class RapUtilMap {
      * @throws Exception
      */
     private static Map<String,Object> fillBeanData(Class beanClass,Map<String,String> genericMap) throws Exception {
-        //Object obj = beanClass.newInstance();
-        //key 为field+comment
+        //Object obj = beanClass.newInstance()
         Map<String,Object> beanMap=new HashMap<>();
         fillBeanDataComm(beanClass, beanMap,genericMap);
         return beanMap;
@@ -266,17 +265,24 @@ public class RapUtilMap {
                     String genericClass=genericMap.get(classType);
                     if(genericClass!=null){
                         Class genericClazz= getClassByPath(genericClass);
-                        if(genericClazz.equals(List.class)){
-                            Class tempClass = beanClass;
-                            Field field=getSuperFieldByFieldName(tempClass,fieldName);
-                            listOperation(genericClazz,beanObj,method,field.getGenericType(),genericMap,fieldCommentMap);
+                        Object genericTypeVal=oftenTypeFillData(genericClazz);
+                        if(genericTypeVal==null){
+                            if(genericClazz.equals(List.class)){
+                                Class tempClass = beanClass;
+                                Field field=getSuperFieldByFieldName(tempClass,fieldName);
+                                listOperation(genericClazz,beanObj,method,field.getGenericType(),genericMap,fieldCommentMap);
+                            }else{
+                                Map<String,Object> genericObjMap=new HashMap<>();
+                                fillBeanDataComm(genericClazz,genericObjMap,genericMap);
+                                beanObj.put(fieldKey,genericObjMap);
+                            }
                         }else{
-                            Map<String,Object> genericObjMap=new HashMap<>();
-                            fillBeanDataComm(genericClazz,genericObjMap,genericMap);
-                            beanObj.put(fieldKey,genericObjMap);
+                            //常用类型
+                            beanObj.put(fieldKey,genericTypeVal);
                         }
                     }
                 }else{
+                    //未写泛型类型
                     beanObj.put(fieldKey,new HashMap<>());
                 }
             }else{
@@ -348,7 +354,7 @@ public class RapUtilMap {
     }
 
     /**
-     * List操作
+     * List类型处理
      * @param beanClass
      * @param beanObj
      * @param method
@@ -508,11 +514,16 @@ public class RapUtilMap {
         if(fieldType!=null){
             String notnullMessage=fieldType.message();
             if(StringUtils.isNotBlank(notnullMessage)){
-                Integer notnullIndex=notnullMessage.indexOf("不能为空");
+                Integer notnullIndex=notnullMessage.indexOf(CommonConstant.NOT_NULL_SPLIT_LONG_CHR);
                 if(notnullIndex>-1){
                     fieldComment=notnullMessage.substring(0,notnullIndex);
                 }else{
-                    fieldComment=notnullMessage;
+                    notnullIndex=notnullMessage.indexOf(CommonConstant.NOT_NULL_SPLIT_SHORT_CHR);
+                    if(notnullIndex>-1){
+                        fieldComment=notnullMessage.substring(0,notnullIndex);
+                    }else{
+                        fieldComment=notnullMessage;
+                    }
                 }
             }
             fieldComment=CommonConstant.FIELD_NOT_NULL+fieldComment;
