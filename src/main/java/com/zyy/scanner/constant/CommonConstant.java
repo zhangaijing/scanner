@@ -55,4 +55,16 @@ public class CommonConstant {
     public final static String FIELD_NOT_NULL="[*]";
     public final static String NOT_NULL_SPLIT_LONG_CHR="不能为空";
     public final static String NOT_NULL_SPLIT_SHORT_CHR="不为空";
+
+    /*** 类注释解析 */
+    public final static String DOT_SDK_DOT_CHR=".sdk.";
+    public final static String SDK_CHR="sdk";
+    public final static String TARGET_CHR="\\target";
+    public final static String JAVA_SUFFIX_CHR=".java";
+    public final static String CLASS_COMMENT_CHR="classComment";
+    public final static String DOCLET_CHR="-doclet";
+    public final static String ENCODING_CHR="-encoding";
+    public final static String UTF_CHR="utf-8";
+    public final static String CLASS_PATH_CHR="-classpath";
+    public final static String SRC_MAIN_JAVA_CHR="\\\\src\\\\main\\\\java";
 }

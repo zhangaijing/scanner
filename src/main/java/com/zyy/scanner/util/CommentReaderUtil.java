@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.RootDoc;
+import com.zyy.scanner.constant.CommonConstant;
 
 /**
  * @Author zhangyy
@@ -34,17 +35,17 @@ public class CommentReaderUtil {
      * @return
      */
     public static Map<String,String> getClassFieldComment(String classPath) throws Exception{
-        Integer sdkIndex=classPath.indexOf(".sdk.");
+        Integer sdkIndex=classPath.indexOf(CommonConstant.DOT_SDK_DOT_CHR);
         String projectAbsPath=getProjectPath();
         if(sdkIndex>0){
             Integer slantLastIndex=projectAbsPath.lastIndexOf("-");
             String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
-            projectAbsPath=tempProjectPath+"sdk";
+            projectAbsPath=tempProjectPath+CommonConstant.SDK_CHR;
         }
-        String targetWorkspace=projectAbsPath+"\\target";
+        String targetWorkspace=projectAbsPath+CommonConstant.TARGET_CHR;
         String classAbsPath=getClassAbsPathByClassPath(projectAbsPath,classPath);
-        if(classAbsPath.lastIndexOf(".java")==-1){
-            classAbsPath+=".java";
+        if(classAbsPath.lastIndexOf(CommonConstant.JAVA_SUFFIX_CHR)==-1){
+            classAbsPath+=CommonConstant.JAVA_SUFFIX_CHR;
         }
         List<String> pathList=new ArrayList<>();
         pathList.add(classAbsPath);
@@ -60,7 +61,7 @@ public class CommentReaderUtil {
         List<String> pathList=new ArrayList<>();
         if(CollectionUtils.isNotEmpty(classPathList)){
             String projectAbsPath=getProjectAbsPath(classPathList.get(0));
-            String targetWorkspace=projectAbsPath+"\\target";
+            String targetWorkspace=projectAbsPath+CommonConstant.TARGET_CHR;
             for(String classPath:classPathList){
                 pathList.add(getClassAbsPath(classPath));
             }
@@ -96,8 +97,8 @@ public class CommentReaderUtil {
     private static String getClassAbsPath(String classPath)throws Exception{
         String projectAbsPath=getProjectAbsPath(classPath);
         String classAbsPath=getClassAbsPathByClassPath(projectAbsPath,classPath);
-        if(classAbsPath.lastIndexOf(".java")==-1){
-            classAbsPath+=".java";
+        if(classAbsPath.lastIndexOf(CommonConstant.JAVA_SUFFIX_CHR)==-1){
+            classAbsPath+=CommonConstant.JAVA_SUFFIX_CHR;
         }
         return classAbsPath;
     }
@@ -109,12 +110,12 @@ public class CommentReaderUtil {
      * @throws Exception
      */
     private static String getProjectAbsPath(String classPath) throws Exception{
-        Integer sdkIndex=classPath.indexOf(".sdk.");
+        Integer sdkIndex=classPath.indexOf(CommonConstant.DOT_SDK_DOT_CHR);
         String projectAbsPath=getProjectPath();
         if(sdkIndex>0){
             Integer slantLastIndex=projectAbsPath.lastIndexOf("-");
             String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
-            projectAbsPath=tempProjectPath+"sdk";
+            projectAbsPath=tempProjectPath+CommonConstant.SDK_CHR;
         }
         return projectAbsPath;
     }
@@ -132,7 +133,7 @@ public class CommentReaderUtil {
             if(StringUtils.isEmpty(classComment)){
                 classComment=classDoc.getRawCommentText();
             }
-            fieldMap.put("classComment",classComment);
+            fieldMap.put(CommonConstant.CLASS_COMMENT_CHR,classComment);
             FieldDoc[] fieldDocs=classDoc.fields(false);
             for(FieldDoc field:fieldDocs){
                 fieldMap.put(field.name(),field.commentText());
@@ -158,11 +159,11 @@ public class CommentReaderUtil {
             int classSize=classPathList.size();
             int paramListSize=6+classSize;
             String[] paramArr=new String[paramListSize];
-            paramArr[0]="-doclet";
+            paramArr[0]=CommonConstant.DOCLET_CHR;
             paramArr[1]=Doclet.class.getName();
-            paramArr[2]="-encoding";
-            paramArr[3]="utf-8";
-            paramArr[4]="-classpath";
+            paramArr[2]=CommonConstant.ENCODING_CHR;
+            paramArr[3]=CommonConstant.UTF_CHR;
+            paramArr[4]=CommonConstant.CLASS_PATH_CHR;
             paramArr[5]=targetWoraspace;
             for(int i=0;i<classPathList.size();i++){
                 paramArr[6+i]=classPathList.get(i);
@@ -183,7 +184,7 @@ public class CommentReaderUtil {
     private static String getClassAbsPathByClassPath(String projectPath,String classPath) throws Exception{
         String projectAbsPath=projectPath;
         projectAbsPath=projectAbsPath.replaceAll("\\\\","\\\\\\\\");
-        projectAbsPath+="\\\\src\\\\main\\\\java";
+        projectAbsPath+=CommonConstant.SRC_MAIN_JAVA_CHR;
         classPath=classPath.replaceAll("\\.","\\\\\\\\");
         String classAbsPath=projectAbsPath+"\\"+classPath;
         return classAbsPath;
@@ -197,7 +198,7 @@ public class CommentReaderUtil {
     private static String getClassAbsPathByClassPath(String classPath) throws Exception{
         String projectAbsPath=getProjectPath();
         projectAbsPath=projectAbsPath.replaceAll("\\\\","\\\\\\\\");
-        projectAbsPath+="\\\\src\\\\main\\\\java";
+        projectAbsPath+=CommonConstant.SRC_MAIN_JAVA_CHR;
         classPath=classPath.replaceAll("\\.","\\\\\\\\");
         String classAbsPath=projectAbsPath+"\\"+classPath;
         return classAbsPath;
