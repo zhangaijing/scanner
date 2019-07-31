@@ -1,5 +1,6 @@
 package com.zyy.scanner.model;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import lombok.Data;
  * @Description
  */
 @Data
-public class ClassAndParentClassBO {
+public class ClassAndParentClassBO implements Serializable {
 
     /*** 类和父类路径集合 */
     private List<String> classPathList;

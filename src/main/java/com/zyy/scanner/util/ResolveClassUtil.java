@@ -360,7 +360,7 @@ public class ResolveClassUtil {
         URL url = loader.getResource(packagePath);
         if (url != null) {
             String type = url.getProtocol();
-            if (type.equals("file")) {
+            if (type.equals(CommonConstant.FILE_CHR)) {
                 getPackageByFile(url.getPath(), fileNames);
             }
         }

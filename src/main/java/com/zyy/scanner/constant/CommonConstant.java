@@ -1,8 +1,6 @@
 package com.zyy.scanner.constant;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * @Author zhangyy
@@ -51,6 +49,7 @@ public class CommonConstant {
     public final static String KEY_CLASS_COMMENT="classComment";
     public final static String ENTER_CHAR="\n";
     public final static String CONTROLLER_CHAR="controller";
+    public final static String FILE_CHR="file";
 
     public final static String FIELD_NOT_NULL="[*]";
     public final static String NOT_NULL_SPLIT_LONG_CHR="不能为空";

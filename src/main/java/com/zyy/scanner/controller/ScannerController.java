@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * @Author zhangyy
  * @DateTime 2019-07-16 11:42
- * @Description 包扫描
+ * @Description 包扫描Controller
  */
 @RestController
 @RequestMapping("/scanner")

@@ -28,7 +28,6 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -39,6 +38,7 @@
             <artifactId>reflections</artifactId>
             <version>0.9.10</version>
         </dependency>
+
         <!-- servlet 依赖包
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -46,12 +46,14 @@
             <scope>provided</scope>
         </dependency>
         -->
+
         <!-- JSTL (JSP standard Tag Library) JSP 标准标签库 -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
@@ -92,7 +94,6 @@
             <systemPath>${java.home}/../lib/tools.jar</systemPath>
         </dependency>
 
-
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -111,16 +112,18 @@
             <version>1.1.0.B049</version>
         </dependency>
 
-
-        <!--
-        <dependency>
-            <groupId>com.zyy.webjars</groupId>
-            <artifactId>scanner-ui</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        -->
-
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://192.168.1.186:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://192.168.1.186:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <finalName>scanner</finalName>

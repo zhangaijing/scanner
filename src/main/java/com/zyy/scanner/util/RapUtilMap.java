@@ -75,7 +75,7 @@ public class RapUtilMap {
                     }else{
                         Map<String,Object> paramMap=new HashMap<>();
                         paramMap.put(paramList.get(0).getParamName(),paramTypeVal);
-                        paramJson=JSONUtils.toJSONString(paramMap);
+                        paramJson=JsonUtils.toJSONString(paramMap);
                     }
                 }
             }else{
@@ -83,17 +83,17 @@ public class RapUtilMap {
                 for(ParamVO param:paramList){
                     String paramClassPath=param.getParamType();
                     if(paramClassPath.indexOf("<")>-1){
-                        paramMap.put(param.getParamName(),JSONUtils.stringToMap(RapUtilMap.fillReturnAndParamBeanToJson(paramClassPath)));
+                        paramMap.put(param.getParamName(),JsonUtils.stringToMap(RapUtilMap.fillReturnAndParamBeanToJson(paramClassPath)));
                     }else{
                         Object paramTypeVal=oftenTypeFillData(paramClassPath);
                         if(paramTypeVal==null){
-                            paramMap.put(param.getParamName(),JSONUtils.stringToMap(RapUtilMap.fillReturnAndParamBeanToJson(paramClassPath)));
+                            paramMap.put(param.getParamName(),JsonUtils.stringToMap(RapUtilMap.fillReturnAndParamBeanToJson(paramClassPath)));
                         }else{
                             paramMap.put(param.getParamName(),paramTypeVal);
                         }
                     }
                 }
-                paramJson=JSONUtils.toJSONString(paramMap);
+                paramJson=JsonUtils.toJSONString(paramMap);
             }
         }
         return paramJson;
@@ -116,13 +116,13 @@ public class RapUtilMap {
                     Object fillObj=fillBeanData(listItemClass,genericMap);
                     listObj.add(fillObj);
                 }
-                jsonStr=JSONUtils.toJSONString(listObj);
+                jsonStr=JsonUtils.toJSONString(listObj);
             }else{
                 jsonStr=CommonConstant.NUL_STR;
             }
         }else{
             Object fillObj=fillBeanData(beanClass,genericMap);
-            jsonStr= JSONUtils.toJSONString(fillObj);
+            jsonStr= JsonUtils.toJSONString(fillObj);
         }
         return jsonStr;
     }

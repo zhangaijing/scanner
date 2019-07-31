@@ -32,7 +32,7 @@ public class RapUtil {
      */
     public static String fillData(Class beanClass,Map<String,String> genericMap) throws Exception {
         Object fillObj=fillBeanData(beanClass,genericMap);
-        String jsonStr= JSONUtils.toJSONString(fillObj);
+        String jsonStr= JsonUtils.toJSONString(fillObj);
         return jsonStr;
     }
 

@@ -21,10 +21,10 @@ import com.alibaba.fastjson.TypeReference;
  *
  * @author lanpeng.
  */
-public final class JSONUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JSONUtils.class);
+public final class JsonUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtils.class);
 
-    private JSONUtils() {
+    private JsonUtils() {
 
     }
 
