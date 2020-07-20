@@ -38,7 +38,7 @@ public class CommentReaderUtil {
         Integer sdkIndex=classPath.indexOf(CommonConstant.DOT_SDK_DOT_CHR);
         String projectAbsPath=getProjectPath();
         if(sdkIndex>0){
-            Integer slantLastIndex=projectAbsPath.lastIndexOf("-");
+            Integer slantLastIndex=projectAbsPath.indexOf("-");
             String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
             projectAbsPath=tempProjectPath+CommonConstant.SDK_CHR;
         }
@@ -113,7 +113,7 @@ public class CommentReaderUtil {
         Integer sdkIndex=classPath.indexOf(CommonConstant.DOT_SDK_DOT_CHR);
         String projectAbsPath=getProjectPath();
         if(sdkIndex>0){
-            Integer slantLastIndex=projectAbsPath.lastIndexOf("-");
+            Integer slantLastIndex=projectAbsPath.indexOf("-");
             String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
             projectAbsPath=tempProjectPath+CommonConstant.SDK_CHR;
         }
@@ -211,7 +211,8 @@ public class CommentReaderUtil {
     private static String getProjectPath() throws Exception{
         File directory = new File("");
         String projectPath = directory.getCanonicalPath();
-        return projectPath;
+        String projectName=(String)YamlReaderUtil.instance.getValueByKey("spring.application.name");
+        return projectPath+"\\"+projectName;
     }
 
 }
