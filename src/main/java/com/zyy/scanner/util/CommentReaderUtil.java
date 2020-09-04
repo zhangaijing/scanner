@@ -113,8 +113,9 @@ public class CommentReaderUtil {
         Integer sdkIndex=classPath.indexOf(CommonConstant.DOT_SDK_DOT_CHR);
         String projectAbsPath=getProjectPath();
         if(sdkIndex>0){
-            Integer slantLastIndex=projectAbsPath.indexOf("-");
-            String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+1);
+            String projectSubStr="\\manage-";
+            Integer slantLastIndex=projectAbsPath.indexOf(projectSubStr);
+            String tempProjectPath=projectAbsPath.substring(0,slantLastIndex+projectSubStr.length());
             projectAbsPath=tempProjectPath+CommonConstant.SDK_CHR;
         }
         return projectAbsPath;
