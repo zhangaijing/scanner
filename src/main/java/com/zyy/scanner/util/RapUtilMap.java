@@ -40,6 +40,8 @@ public class RapUtilMap {
      * @throws Exception
      */
     public static String fillReturnAndParamBeanToJson(String classPath) throws Exception{
+        circleRef=0;
+        //BackBO的泛型解析
         Map<String,String> genericMap=resolveGenericClass(classPath);
         String returnJson;
         if(classPath.equals(CommonConstant.TYPE_VOID)){
@@ -52,6 +54,7 @@ public class RapUtilMap {
         }else{
             returnJson=fillBeanToJson(classPath);
         }
+        circleRef=0;
         return returnJson;
     }
 
@@ -107,6 +110,7 @@ public class RapUtilMap {
     public static String fillData(Class beanClass,Map<String,String> genericMap) throws Exception {
         String jsonStr;
         if(beanClass.equals(List.class)){
+            //BackBO中泛型是List的处理
             List<Object> listObj=new ArrayList<>();
             String classTypeName=beanClass.getTypeName();
             String listItemType=genericMap.get(classTypeName);
@@ -353,6 +357,9 @@ public class RapUtilMap {
         return clazz;
     }
 
+    //类循环引用计数
+    private static Integer circleRef=0;
+
     /**
      * List类型处理
      * @param beanClass
@@ -376,10 +383,17 @@ public class RapUtilMap {
                 }else{
                     listObjClass = (Class) pt.getActualTypeArguments()[0];
                 }
+                if(listObjClass.getName().equals(beanClass.getName())){
+                    //循环引用计数+1
+                    circleRef++;
+                }
             }
             for (int i = CommonConstant.INT_ZERO; i < CommonConstant.ARR_FILL_MAX_NUM; i++) {
-                Object listObj = fillListData(listObjClass);
-                objList.add(listObj);
+                if(circleRef<=2){
+                    //终止死循环
+                    Object listObj = fillListData(listObjClass);
+                    objList.add(listObj);
+                }
             }
             String fieldName=methodNameToFieldName(method.getName());
             String fieldKey;
@@ -390,6 +404,7 @@ public class RapUtilMap {
                 fieldKey=getFieldKeyByMethod(method,beanField,fieldCommentMap);
             }
             //method.invoke(beanObj, objList)
+            //circleRef=0;
             beanObj.put(fieldKey,objList);
         }
     }

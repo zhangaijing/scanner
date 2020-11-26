@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 public class ClassAndParentClassBO implements Serializable {
 
-    /*** 类和父类路径集合 */
+    /*** 类+父类路径集合 */
     private List<String> classPathList;
 
     /*** 类和父类方法集合 */
